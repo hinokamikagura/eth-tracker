@@ -116,7 +116,7 @@ func (b *Backfill) Run(skipLatest bool) error {
 
 	missingBlocks.ClearAll()
 	missingBlocks = nil
-	b.logg.Info("backfill tick run complete")
+	b.logg.Debug("backfill tick run complete")
 
 	return nil
 }
