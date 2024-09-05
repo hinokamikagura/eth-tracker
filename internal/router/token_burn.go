@@ -17,7 +17,7 @@ var (
 	_ Handler = (*tokenBurnHandler)(nil)
 
 	tokenBurnEvent = w3.MustNewEvent("Burn(address indexed _tokenBurner, uint256 _value)")
-	tokenBurnToSig = w3.MustNewFunc("Burn(uint256)", "bool")
+	tokenBurnToSig = w3.MustNewFunc("burn(uint256)", "bool")
 )
 
 func (h *tokenBurnHandler) Name() string {

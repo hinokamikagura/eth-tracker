@@ -11,34 +11,35 @@ import (
 
 type (
 	BackfillOpts struct {
-		DB   db.DB
-		Logg *slog.Logger
-		Pool *pool.Pool
+		BatchSize int
+		DB        db.DB
+		Logg      *slog.Logger
+		Pool      *pool.Pool
 	}
 
 	Backfill struct {
-		db     db.DB
-		logg   *slog.Logger
-		pool   *pool.Pool
-		stopCh chan struct{}
-		ticker *time.Ticker
+		batchSize int
+		db        db.DB
+		logg      *slog.Logger
+		pool      *pool.Pool
+		stopCh    chan struct{}
+		ticker    *time.Ticker
 	}
 )
 
 const (
 	idleCheckInterval = 60 * time.Second
 	busyCheckInterval = 1 * time.Second
-
-	maxPoolSizePush = 100
 )
 
 func New(o BackfillOpts) *Backfill {
 	return &Backfill{
-		db:     o.DB,
-		logg:   o.Logg,
-		pool:   o.Pool,
-		stopCh: make(chan struct{}),
-		ticker: time.NewTicker(idleCheckInterval),
+		batchSize: o.BatchSize,
+		db:        o.DB,
+		logg:      o.Logg,
+		pool:      o.Pool,
+		stopCh:    make(chan struct{}),
+		ticker:    time.NewTicker(idleCheckInterval),
 	}
 }
 
@@ -90,13 +91,13 @@ func (b *Backfill) Run(skipLatest bool) error {
 	if missingBlocksCount > 0 {
 		b.logg.Info("found missing blocks", "skip_latest", skipLatest, "missing_blocks_count", missingBlocksCount)
 
-		buffer := make([]uint, maxPoolSizePush)
+		buffer := make([]uint, b.batchSize)
 		j := uint(0)
 		pushedCount := 0
 		j, buffer = missingBlocks.NextSetMany(j, buffer)
 		for ; len(buffer) > 0; j, buffer = missingBlocks.NextSetMany(j, buffer) {
 			for k := range buffer {
-				if pushedCount >= maxPoolSizePush {
+				if pushedCount >= b.batchSize {
 					break
 				}
 
@@ -104,11 +105,11 @@ func (b *Backfill) Run(skipLatest bool) error {
 				b.logg.Debug("pushed block from backfill", "block", buffer[k])
 				pushedCount++
 			}
-			j += 1
+			j++
 		}
 	}
 
-	if missingBlocksCount > maxPoolSizePush {
+	if missingBlocksCount > uint(b.batchSize) {
 		b.ticker.Reset(busyCheckInterval)
 	} else {
 		b.ticker.Reset(idleCheckInterval)

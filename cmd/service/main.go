@@ -108,6 +108,7 @@ func main() {
 	poolOpts := pool.PoolOpts{
 		Logg:        lo,
 		WorkerCount: ko.Int("core.pool_size"),
+		BatchSize:   ko.MustInt("core.batch_size"),
 		Processor:   blockProcessor,
 	}
 	if ko.Int("core.pool_size") <= 0 {
@@ -136,9 +137,10 @@ func main() {
 	}
 
 	backfill := backfill.New(backfill.BackfillOpts{
-		DB:   db,
-		Logg: lo,
-		Pool: workerPool,
+		BatchSize: ko.MustInt("core.batch_size"),
+		DB:        db,
+		Logg:      lo,
+		Pool:      workerPool,
 	})
 
 	apiServer := &http.Server{

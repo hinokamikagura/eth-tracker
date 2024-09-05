@@ -17,7 +17,7 @@ var (
 	_ Handler = (*tokenMintHandler)(nil)
 
 	tokenMintEvent = w3.MustNewEvent("Mint(address indexed _tokenMinter, address indexed _beneficiary, uint256 _value)")
-	tokenMintToSig = w3.MustNewFunc("MintTo(address, uint256)", "bool")
+	tokenMintToSig = w3.MustNewFunc("mintTo(address, uint256)", "bool")
 )
 
 func (h *tokenMintHandler) Name() string {

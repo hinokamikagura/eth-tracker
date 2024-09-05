@@ -11,6 +11,7 @@ db_type = "bolt"
 # Defaults to (nproc * 3)
 pool_size = 0
 # If you are using an archive node, set this to true
+batch_size = 100
 
 [redis]
 dsn = "127.0.0.1:6379"

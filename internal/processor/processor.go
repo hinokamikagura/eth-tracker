@@ -68,7 +68,7 @@ func (p *Processor) ProcessBlock(ctx context.Context, blockNumber uint64) error 
 							Timestamp: block.Time(),
 						},
 					); err != nil && !errors.Is(err, context.Canceled) {
-						return err
+						return fmt.Errorf("route success transaction error: tx %s: %v", receipt.TxHash.Hex(), err)
 					}
 				}
 			}
@@ -100,7 +100,7 @@ func (p *Processor) ProcessBlock(ctx context.Context, blockNumber uint64) error 
 							TxHash:          receipt.TxHash.Hex(),
 						},
 					); err != nil && !errors.Is(err, context.Canceled) {
-						return err
+						return fmt.Errorf("route revert transaction error: tx %s: %v", receipt.TxHash.Hex(), err)
 					}
 				}
 			}

@@ -11,6 +11,7 @@ import (
 
 type (
 	PoolOpts struct {
+		BatchSize   int
 		Logg        *slog.Logger
 		WorkerCount int
 		Processor   *processor.Processor
@@ -23,14 +24,12 @@ type (
 	}
 )
 
-const blocksBuffer = 100
-
 func New(o PoolOpts) *Pool {
 	return &Pool{
 		logg: o.Logg,
 		workerPool: pond.New(
 			o.WorkerCount,
-			blocksBuffer,
+			o.BatchSize,
 			pond.Strategy(pond.Balanced()),
 			pond.PanicHandler(panicHandler(o.Logg)),
 		),
