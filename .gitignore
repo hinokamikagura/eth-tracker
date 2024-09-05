@@ -1,0 +1,6 @@
+tracker_db
+.vscode
+.idx
+**/*.env
+celo-tracker
+celo-tracker-cache-bootstrap

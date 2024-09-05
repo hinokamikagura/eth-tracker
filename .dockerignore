@@ -1,0 +1,9 @@
+/**
+tracker_db
+!/cmd
+!/db
+!/internal
+!/pkg
+!/LICENSE
+!/config.toml
+!/go.*

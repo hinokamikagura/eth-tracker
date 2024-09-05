@@ -1,0 +1,44 @@
+ignoreGeneratedHeader = true
+severity = "warning"
+confidence = 0.8
+errorCode = 0
+warningCode = 0
+
+[rule.blank-imports]
+[rule.context-as-argument]
+[rule.context-keys-type]
+[rule.dot-imports]
+[rule.error-return]
+[rule.error-strings]
+[rule.error-naming]
+[rule.increment-decrement]
+[rule.var-naming]
+[rule.var-declaration]
+[rule.range]
+[rule.receiver-naming]
+[rule.time-naming]
+[rule.unexported-return]
+[rule.indent-error-flow]
+[rule.errorf]
+[rule.empty-block]
+[rule.superfluous-else]
+[rule.unused-parameter]
+[rule.unreachable-code]
+[rule.redefines-builtin-id]
+
+
+[rule.defer]
+arguments = [["loop", "method-call", "recover", "return", "immediate-recover"]]
+
+[rule.string-of-int]
+
+[rule.atomic]
+[rule.call-to-gc]
+[rule.constant-logical-expr]
+[rule.identical-branches]
+[rule.modifies-parameter]
+[rule.modifies-value-receiver]
+[rule.range-val-address]
+[rule.range-val-in-closure]
+[rule.unconditional-recursion]
+[rule.waitgroup-by-value]
