@@ -11,7 +11,7 @@ import (
 	"github.com/grassrootseconomics/celo-tracker/db"
 	"github.com/grassrootseconomics/celo-tracker/internal/cache"
 	"github.com/grassrootseconomics/celo-tracker/internal/chain"
-	"github.com/grassrootseconomics/celo-tracker/internal/router"
+	"github.com/grassrootseconomics/celo-tracker/pkg/router"
 )
 
 type (
@@ -61,9 +61,9 @@ func (p *Processor) ProcessBlock(ctx context.Context, blockNumber uint64) error 
 					return err
 				}
 				if exists {
-					if err := p.router.RouteSuccessTx(
+					if err := p.router.ProcessLog(
 						ctx,
-						router.SuccessTx{
+						router.LogPayload{
 							Log:       log,
 							Timestamp: block.Time(),
 						},
@@ -89,9 +89,9 @@ func (p *Processor) ProcessBlock(ctx context.Context, blockNumber uint64) error 
 						return fmt.Errorf("transaction decode error: tx %s: %v", receipt.TxHash.Hex(), err)
 					}
 
-					if err := p.router.RouteRevertTx(
+					if err := p.router.ProcessInputData(
 						ctx,
-						router.RevertTx{
+						router.InputDataPayload{
 							From:            from.Hex(),
 							InputData:       common.Bytes2Hex(tx.Data()),
 							Block:           blockNumber,

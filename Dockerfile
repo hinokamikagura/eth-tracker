@@ -12,7 +12,7 @@ WORKDIR /build
 COPY . .
 RUN go mod download
 RUN go build -o celo-tracker-cache-bootstrap -ldflags="-X main.build=${BUILD} -s -w" cmd/bootstrap/main.go
-RUN go build -o celo-tracker -ldflags="-X main.build=${BUILD} -s -w" cmd/service/main.go
+RUN go build -o celo-tracker -ldflags="-X main.build=${BUILD} -s -w" cmd/service/*.go
 
 FROM debian:bookworm-slim
 

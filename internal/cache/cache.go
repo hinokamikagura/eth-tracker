@@ -39,24 +39,5 @@ func New(o CacheOpts) (Cache, error) {
 		o.Logg.Warn("invalid cache type, using default type (map)")
 	}
 
-	// geSmartContracts, err := o.Chain.Provider().GetGESmartContracts(
-	// 	context.Background(),
-	// 	o.Registries,
-	// )
-	// if err != nil {
-	// 	return nil, fmt.Errorf("cache could not bootstrap GE smart contracts: err %v", err)
-	// }
-
-	// for k, v := range geSmartContracts {
-	// 	cache.Add(k, v)
-	// }
-	// for _, address := range o.Watchlist {
-	// 	cache.Add(address, false)
-	// }
-	// for _, address := range o.Blacklist {
-	// 	cache.Remove(address)
-	// }
-	// o.Logg.Info("cache bootstrap complete", "cached_addresses", cache.Size())
-
 	return cache, nil
 }

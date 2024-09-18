@@ -21,7 +21,6 @@ import (
 	"github.com/grassrootseconomics/celo-tracker/internal/pool"
 	"github.com/grassrootseconomics/celo-tracker/internal/processor"
 	"github.com/grassrootseconomics/celo-tracker/internal/pub"
-	"github.com/grassrootseconomics/celo-tracker/internal/router"
 	"github.com/grassrootseconomics/celo-tracker/internal/stats"
 	"github.com/grassrootseconomics/celo-tracker/internal/syncer"
 	"github.com/grassrootseconomics/celo-tracker/internal/util"
@@ -92,10 +91,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	router := router.New(router.RouterOpts{
-		Pub:   jetStreamPub,
-		Cache: cache,
-	})
+	router := bootstrapEventRouter(cache, jetStreamPub.Send)
 
 	blockProcessor := processor.NewProcessor(processor.ProcessorOpts{
 		Cache:  cache,
