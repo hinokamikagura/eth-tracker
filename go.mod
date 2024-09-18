@@ -19,7 +19,7 @@ require (
 	github.com/redis/rueidis v1.0.44
 	github.com/stretchr/testify v1.9.0
 	github.com/uptrace/bunrouter v1.0.21
-	go.etcd.io/bbolt v1.3.10
+	go.etcd.io/bbolt v1.3.11
 )
 
 require (
