@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/VictoriaMetrics/metrics v1.35.1
-	github.com/alitto/pond v1.9.1
+	github.com/alitto/pond v1.9.2
 	github.com/bits-and-blooms/bitset v1.14.3
 	github.com/celo-org/celo-blockchain v1.8.4
 	github.com/grassrootseconomics/celoutils/v3 v3.3.1
