@@ -2,5 +2,5 @@ tracker_db
 .vscode
 .idx
 **/*.env
-celo-tracker
-celo-tracker-cache-bootstrap
+eth-tracker
+eth-tracker-cache-bootstrap

@@ -11,8 +11,8 @@ WORKDIR /build
 
 COPY . .
 RUN go mod download
-RUN go build -o celo-tracker-cache-bootstrap -ldflags="-X main.build=${BUILD} -s -w" cmd/bootstrap/main.go
-RUN go build -o celo-tracker -ldflags="-X main.build=${BUILD} -s -w" cmd/service/*.go
+RUN go build -o eth-tracker-cache-bootstrap -ldflags="-X main.build=${BUILD} -s -w" cmd/bootstrap/main.go
+RUN go build -o eth-tracker -ldflags="-X main.build=${BUILD} -s -w" cmd/service/*.go
 
 FROM debian:bookworm-slim
 
@@ -25,4 +25,4 @@ COPY --from=build /build/* .
 
 EXPOSE 5001
 
-CMD ["./celo-tracker"]
+CMD ["./eth-tracker"]

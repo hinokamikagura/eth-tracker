@@ -17,22 +17,17 @@ batch_size = 100
 dsn = "127.0.0.1:6379"
 
 [chain]
-ws_endpoint = "wss://ws.celo.grassecon.net"
-rpc_endpoint = "https://celo.grassecon.net"
+ws_endpoint = "ws://localhost:8546"
+rpc_endpoint = "http://localhost:8545"
 # Defaults to Celo mainnet
-# At the moment only support Celo based blockchains
-chainid = 42220
+chainid = 1337
 # This will start a backfill if set to any other value
 # Ideally this should remain 0
 start_block = 0
 
 [bootstrap]
 # This will bootstrap the cache on which addresses to track
-# Grassroots Economics specific registries that autoload all other smart contracts
-ge_registries = [
-    "0xd1FB944748aca327a1ba036B082993D9dd9Bfa0C",
-    "0x0cc9f4fff962def35bb34a53691180b13e653030",
-]
+ge_registries = ["0xE979a64D375F5D363d7cecF3c93B9aFD40Ba9f55"]
 watchlist = [""]
 blacklist = [""]
 

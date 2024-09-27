@@ -52,5 +52,5 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           tags: |
-            ghcr.io/grassrootseconomics/celo-tracker:latest
-            ghcr.io/grassrootseconomics/celo-tracker:${{ env.RELEASE_TAG }}
+            ghcr.io/grassrootseconomics/eth-tracker:latest
+            ghcr.io/grassrootseconomics/eth-tracker:${{ env.RELEASE_TAG }}

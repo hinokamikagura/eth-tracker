@@ -1,6 +1,6 @@
-# celo-tracker
+# eth-tracker
 
-![GitHub Tag](https://img.shields.io/github/v/tag/grassrootseconomics/celo-tracker)
+![GitHub Tag](https://img.shields.io/github/v/tag/grassrootseconomics/eth-tracker)
 
 A fast and lightweight tracker designed to monitor the Celo blockchain for live and historical transaction events, including reverted transactions. It filters these events and publishes them to NATS for further processing.
 
@@ -8,11 +8,11 @@ It applies deduplication at the NATS level, making it safe to run in a distribut
 
 ## Getting Started
 
-A `Makefile` is also provided to build the required binaries to run celo-tracker.
+A `Makefile` is also provided to build the required binaries to run eth-tracker.
 
 ### Bootstrap Cache
 
-An optional binary, `celo-tracker-cache-bootstrap`, is included to build the Redis cache with all relevant Grassroots Economics smart contract and user addresses to allow filtering on very busy smart contracts e.g. cUSD.
+An optional binary, `eth-tracker-cache-bootstrap`, is included to build the Redis cache with all relevant Grassroots Economics smart contract and user addresses to allow filtering on very busy smart contracts e.g. cUSD.
 
 The cache will auto-update based on any additions/removals from all indexes.
 
@@ -34,8 +34,8 @@ If you are on any other platform:
 
 ```bash
 git clone https://github.com/grassrootseconomics/eth-tracker.git
-cd celo-tracker
-docker buildx build --build-arg BUILD=$(git rev-parse --short HEAD) --tag celo-tracker:$(git rev-parse --short HEAD) --tag celo-tracker:latest .
+cd eth-tracker
+docker buildx build --build-arg BUILD=$(git rev-parse --short HEAD) --tag eth-tracker:$(git rev-parse --short HEAD) --tag eth-tracker:latest .
 docker images
 ```
 
