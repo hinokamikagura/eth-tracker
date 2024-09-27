@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/grassrootseconomics/celo-tracker/db"
-	"github.com/grassrootseconomics/celo-tracker/internal/pool"
+	"github.com/grassrootseconomics/eth-tracker/db"
+	"github.com/grassrootseconomics/eth-tracker/internal/pool"
 )
 
 type (

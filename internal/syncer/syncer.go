@@ -4,12 +4,12 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/celo-org/celo-blockchain"
-	"github.com/celo-org/celo-blockchain/ethclient"
-	"github.com/grassrootseconomics/celo-tracker/db"
-	"github.com/grassrootseconomics/celo-tracker/internal/chain"
-	"github.com/grassrootseconomics/celo-tracker/internal/pool"
-	"github.com/grassrootseconomics/celo-tracker/internal/stats"
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/grassrootseconomics/eth-tracker/db"
+	"github.com/grassrootseconomics/eth-tracker/internal/chain"
+	"github.com/grassrootseconomics/eth-tracker/internal/pool"
+	"github.com/grassrootseconomics/eth-tracker/internal/stats"
 )
 
 type (
@@ -27,7 +27,7 @@ type (
 		db          db.DB
 		ethClient   *ethclient.Client
 		logg        *slog.Logger
-		realtimeSub celo.Subscription
+		realtimeSub ethereum.Subscription
 		pool        *pool.Pool
 		stats       *stats.Stats
 		stopCh      chan struct{}

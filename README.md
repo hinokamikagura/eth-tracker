@@ -33,7 +33,7 @@ We provide pre-built images for `linux/amd64`. See the packages tab on Github.
 If you are on any other platform:
 
 ```bash
-git clone https://github.com/grassrootseconomics/celo-tracker.git
+git clone https://github.com/grassrootseconomics/eth-tracker.git
 cd celo-tracker
 docker buildx build --build-arg BUILD=$(git rev-parse --short HEAD) --tag celo-tracker:$(git rev-parse --short HEAD) --tag celo-tracker:latest .
 docker images

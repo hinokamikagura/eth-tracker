@@ -3,9 +3,9 @@ package router
 import (
 	"context"
 
-	"github.com/celo-org/celo-blockchain/common"
-	"github.com/celo-org/celo-blockchain/core/types"
-	"github.com/grassrootseconomics/celo-tracker/pkg/event"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/grassrootseconomics/eth-tracker/pkg/event"
 )
 
 type (

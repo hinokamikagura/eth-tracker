@@ -4,10 +4,10 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/celo-org/celo-blockchain/common"
-	"github.com/grassrootseconomics/celo-tracker/pkg/event"
-	"github.com/grassrootseconomics/celo-tracker/pkg/router"
-	"github.com/grassrootseconomics/w3-celo"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/grassrootseconomics/eth-tracker/pkg/event"
+	"github.com/grassrootseconomics/eth-tracker/pkg/router"
+	"github.com/lmittmann/w3"
 )
 
 const burnEventName = "TOKEN_BURN"

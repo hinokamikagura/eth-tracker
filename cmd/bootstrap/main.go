@@ -7,14 +7,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/celo-org/celo-blockchain/common"
-	"github.com/grassrootseconomics/celo-tracker/internal/cache"
-	"github.com/grassrootseconomics/celo-tracker/internal/chain"
-	"github.com/grassrootseconomics/celo-tracker/internal/util"
-	"github.com/grassrootseconomics/celoutils/v3"
-	"github.com/grassrootseconomics/w3-celo"
-	"github.com/grassrootseconomics/w3-celo/module/eth"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/grassrootseconomics/eth-tracker/internal/cache"
+	"github.com/grassrootseconomics/eth-tracker/internal/chain"
+	"github.com/grassrootseconomics/eth-tracker/internal/util"
+	"github.com/grassrootseconomics/ethutils"
 	"github.com/knadh/koanf/v2"
+	"github.com/lmittmann/w3"
+	"github.com/lmittmann/w3/module/eth"
 )
 
 const cacheType = "redis"
@@ -44,7 +44,7 @@ func main() {
 		quoterGetter        = w3.MustNewFunc("quoter()", "address")
 	)
 
-	chain, err := chain.NewRPCFetcher(chain.CeloRPCOpts{
+	chain, err := chain.NewRPCFetcher(chain.EthRPCOpts{
 		RPCEndpoint: ko.MustString("chain.rpc_endpoint"),
 		ChainID:     ko.MustInt64("chain.chainid"),
 	})
@@ -67,13 +67,13 @@ func main() {
 	defer cancel()
 
 	for _, registry := range ko.MustStrings("bootstrap.ge_registries") {
-		registryMap, err := chain.Provider().RegistryMap(ctx, celoutils.HexToAddress(registry))
+		registryMap, err := chain.Provider().RegistryMap(ctx, ethutils.HexToAddress(registry))
 		if err != nil {
 			lo.Error("could not fetch registry", "error", err)
 			os.Exit(1)
 		}
 
-		if tokenIndex := registryMap[celoutils.TokenIndex]; tokenIndex != celoutils.ZeroAddress {
+		if tokenIndex := registryMap[ethutils.TokenIndex]; tokenIndex != ethutils.ZeroAddress {
 			tokenIndexIter, err := chain.Provider().NewBatchIterator(ctx, tokenIndex)
 			if err != nil {
 				lo.Error("could not create token index iter", "error", err)
@@ -99,7 +99,7 @@ func main() {
 			}
 		}
 
-		if poolIndex := registryMap[celoutils.PoolIndex]; poolIndex != celoutils.ZeroAddress {
+		if poolIndex := registryMap[ethutils.PoolIndex]; poolIndex != ethutils.ZeroAddress {
 			poolIndexIter, err := chain.Provider().NewBatchIterator(ctx, poolIndex)
 			if err != nil {
 				lo.Error("cache could create pool index iter", "error", err)
@@ -132,13 +132,13 @@ func main() {
 						lo.Error("error fetching pool token index and/or quoter", "error", err)
 						os.Exit(1)
 					}
-					if priceQuoter != celoutils.ZeroAddress {
+					if priceQuoter != ethutils.ZeroAddress {
 						if err := cache.Add(ctx, priceQuoter.Hex()); err != nil {
 							lo.Error("redis error setting key", "error", err)
 							os.Exit(1)
 						}
 					}
-					if poolTokenIndex != celoutils.ZeroAddress {
+					if poolTokenIndex != ethutils.ZeroAddress {
 						if err := cache.Add(ctx, poolTokenIndex.Hex()); err != nil {
 							lo.Error("redis error setting key", "error", err)
 							os.Exit(1)
@@ -161,7 +161,7 @@ func main() {
 							}
 							lo.Debug("index batch", "index", poolTokenIndex.Hex(), "size", len(batch))
 							for _, address := range batch {
-								if address != celoutils.ZeroAddress {
+								if address != ethutils.ZeroAddress {
 									if err := cache.Add(ctx, address.Hex()); err != nil {
 										lo.Error("redis error setting key", "error", err)
 										os.Exit(1)
@@ -174,7 +174,7 @@ func main() {
 			}
 		}
 
-		if accountsIndex := registryMap[celoutils.AccountIndex]; accountsIndex != celoutils.ZeroAddress {
+		if accountsIndex := registryMap[ethutils.AccountIndex]; accountsIndex != ethutils.ZeroAddress {
 			accountsIndexIter, err := chain.Provider().NewBatchIterator(ctx, accountsIndex)
 			if err != nil {
 				lo.Error("could not create accounts index iter", "error", err)
@@ -222,7 +222,7 @@ func main() {
 		}
 	}
 
-	if err := cache.Remove(ctx, celoutils.ZeroAddress.Hex()); err != nil {
+	if err := cache.Remove(ctx, ethutils.ZeroAddress.Hex()); err != nil {
 		lo.Error("redis error deleting key", "error", err)
 		os.Exit(1)
 	}

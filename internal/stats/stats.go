@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/grassrootseconomics/celo-tracker/internal/cache"
-	"github.com/grassrootseconomics/celo-tracker/internal/pool"
+	"github.com/grassrootseconomics/eth-tracker/internal/cache"
+	"github.com/grassrootseconomics/eth-tracker/internal/pool"
 )
 
 type (

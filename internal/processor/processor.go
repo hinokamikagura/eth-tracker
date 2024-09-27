@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/celo-org/celo-blockchain/common"
-	"github.com/celo-org/celo-blockchain/core/types"
-	"github.com/grassrootseconomics/celo-tracker/db"
-	"github.com/grassrootseconomics/celo-tracker/internal/cache"
-	"github.com/grassrootseconomics/celo-tracker/internal/chain"
-	"github.com/grassrootseconomics/celo-tracker/pkg/router"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/grassrootseconomics/eth-tracker/db"
+	"github.com/grassrootseconomics/eth-tracker/internal/cache"
+	"github.com/grassrootseconomics/eth-tracker/internal/chain"
+	"github.com/grassrootseconomics/eth-tracker/pkg/router"
 )
 
 type (

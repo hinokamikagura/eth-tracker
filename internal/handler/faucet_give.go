@@ -4,11 +4,11 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/celo-org/celo-blockchain/common"
-	"github.com/grassrootseconomics/celo-tracker/pkg/event"
-	"github.com/grassrootseconomics/celo-tracker/pkg/router"
-	"github.com/grassrootseconomics/celoutils/v3"
-	"github.com/grassrootseconomics/w3-celo"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/grassrootseconomics/eth-tracker/pkg/event"
+	"github.com/grassrootseconomics/eth-tracker/pkg/router"
+	"github.com/grassrootseconomics/ethutils"
+	"github.com/lmittmann/w3"
 )
 
 const faucetGiveEventName = "FAUCET_GIVE"
@@ -71,15 +71,15 @@ func HandleFaucetGiveInputData() router.InputDataHandlerFunc {
 
 			faucetGiveEvent.Payload = map[string]any{
 				"recipient": to.Hex(),
-				"token":     celoutils.ZeroAddress,
+				"token":     ethutils.ZeroAddress,
 				"amount":    "0",
 			}
 
 			return c(ctx, faucetGiveEvent)
 		case "de82efb4":
 			faucetGiveEvent.Payload = map[string]any{
-				"recipient": celoutils.ZeroAddress,
-				"token":     celoutils.ZeroAddress,
+				"recipient": ethutils.ZeroAddress,
+				"token":     ethutils.ZeroAddress,
 				"amount":    "0",
 			}
 

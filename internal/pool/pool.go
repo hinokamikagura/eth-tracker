@@ -6,7 +6,7 @@ import (
 	"runtime/debug"
 
 	"github.com/alitto/pond"
-	"github.com/grassrootseconomics/celo-tracker/internal/processor"
+	"github.com/grassrootseconomics/eth-tracker/internal/processor"
 )
 
 type (

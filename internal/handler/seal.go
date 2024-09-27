@@ -4,9 +4,9 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/grassrootseconomics/celo-tracker/pkg/event"
-	"github.com/grassrootseconomics/celo-tracker/pkg/router"
-	"github.com/grassrootseconomics/w3-celo"
+	"github.com/grassrootseconomics/eth-tracker/pkg/event"
+	"github.com/grassrootseconomics/eth-tracker/pkg/router"
+	"github.com/lmittmann/w3"
 )
 
 const sealEventName = "SEAL_STATE_CHANGE"

@@ -4,14 +4,21 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/celo-org/celo-blockchain/common"
-	"github.com/grassrootseconomics/celo-tracker/pkg/event"
-	"github.com/grassrootseconomics/celo-tracker/pkg/router"
-	"github.com/grassrootseconomics/celoutils/v3"
-	"github.com/grassrootseconomics/w3-celo"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/grassrootseconomics/eth-tracker/pkg/event"
+	"github.com/grassrootseconomics/eth-tracker/pkg/router"
+	"github.com/lmittmann/w3"
 )
 
-const transferEventName = "TOKEN_TRANSFER"
+const (
+	transferEventName = "TOKEN_TRANSFER"
+
+	CUSDContractMainnet = "0x765DE816845861e75A25fCA122bb6898B8B1282a"
+	CKESContractMainnet = "0x456a3D042C0DbD3db53D5489e98dFb038553B0d0"
+	CEURContractmainnet = "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73"
+	USDCContractMainnet = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C"
+	USDTContractMainnet = "0x617f3112bf5397D0467D315cC709EF968D9ba546"
+)
 
 var (
 	tokenTransferEvent   = w3.MustNewEvent("Transfer(address indexed _from, address indexed _to, uint256 _value)")
@@ -19,10 +26,10 @@ var (
 	tokenTransferFromSig = w3.MustNewFunc("transferFrom(address, address, uint256)", "bool")
 
 	stables = map[string]bool{
-		celoutils.CUSDContractMainnet: true,
-		celoutils.CKESContractMainnet: true,
-		celoutils.USDTContractMainnet: true,
-		celoutils.USDCContractMainnet: true,
+		CUSDContractMainnet: true,
+		CKESContractMainnet: true,
+		USDTContractMainnet: true,
+		USDCContractMainnet: true,
 	}
 )
 

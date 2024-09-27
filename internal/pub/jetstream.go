@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/grassrootseconomics/celo-tracker/pkg/event"
+	"github.com/grassrootseconomics/eth-tracker/pkg/event"
 	"github.com/nats-io/nats.go"
 )
 

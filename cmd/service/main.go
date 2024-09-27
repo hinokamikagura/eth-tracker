@@ -13,17 +13,17 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/grassrootseconomics/celo-tracker/db"
-	"github.com/grassrootseconomics/celo-tracker/internal/api"
-	"github.com/grassrootseconomics/celo-tracker/internal/backfill"
-	"github.com/grassrootseconomics/celo-tracker/internal/cache"
-	"github.com/grassrootseconomics/celo-tracker/internal/chain"
-	"github.com/grassrootseconomics/celo-tracker/internal/pool"
-	"github.com/grassrootseconomics/celo-tracker/internal/processor"
-	"github.com/grassrootseconomics/celo-tracker/internal/pub"
-	"github.com/grassrootseconomics/celo-tracker/internal/stats"
-	"github.com/grassrootseconomics/celo-tracker/internal/syncer"
-	"github.com/grassrootseconomics/celo-tracker/internal/util"
+	"github.com/grassrootseconomics/eth-tracker/db"
+	"github.com/grassrootseconomics/eth-tracker/internal/api"
+	"github.com/grassrootseconomics/eth-tracker/internal/backfill"
+	"github.com/grassrootseconomics/eth-tracker/internal/cache"
+	"github.com/grassrootseconomics/eth-tracker/internal/chain"
+	"github.com/grassrootseconomics/eth-tracker/internal/pool"
+	"github.com/grassrootseconomics/eth-tracker/internal/processor"
+	"github.com/grassrootseconomics/eth-tracker/internal/pub"
+	"github.com/grassrootseconomics/eth-tracker/internal/stats"
+	"github.com/grassrootseconomics/eth-tracker/internal/syncer"
+	"github.com/grassrootseconomics/eth-tracker/internal/util"
 	"github.com/knadh/koanf/v2"
 )
 
@@ -52,7 +52,7 @@ func main() {
 	var wg sync.WaitGroup
 	ctx, stop := notifyShutdown()
 
-	chain, err := chain.NewRPCFetcher(chain.CeloRPCOpts{
+	chain, err := chain.NewRPCFetcher(chain.EthRPCOpts{
 		RPCEndpoint: ko.MustString("chain.rpc_endpoint"),
 		ChainID:     ko.MustInt64("chain.chainid"),
 	})

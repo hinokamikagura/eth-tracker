@@ -1,6 +1,6 @@
 package handler
 
-import "github.com/grassrootseconomics/celo-tracker/internal/cache"
+import "github.com/grassrootseconomics/eth-tracker/internal/cache"
 
 type HandlerContainer struct {
 	cache cache.Cache

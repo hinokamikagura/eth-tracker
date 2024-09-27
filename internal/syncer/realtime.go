@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/celo-org/celo-blockchain"
-	"github.com/celo-org/celo-blockchain/core/types"
-	"github.com/celo-org/celo-blockchain/event"
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 type BlockQueueFn func(uint64) error
@@ -23,7 +23,7 @@ func (s *Syncer) Start() {
 	s.realtimeSub = event.ResubscribeErr(resubscribeInterval, s.resubscribeFn())
 }
 
-func (s *Syncer) receiveRealtimeBlocks(ctx context.Context, fn BlockQueueFn) (celo.Subscription, error) {
+func (s *Syncer) receiveRealtimeBlocks(ctx context.Context, fn BlockQueueFn) (ethereum.Subscription, error) {
 	newHeadersReceiver := make(chan *types.Header, 1)
 	sub, err := s.ethClient.SubscribeNewHead(ctx, newHeadersReceiver)
 	s.logg.Info("realtime syncer connected to ws endpoint")
