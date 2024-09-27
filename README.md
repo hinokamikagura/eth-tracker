@@ -2,9 +2,11 @@
 
 ![GitHub Tag](https://img.shields.io/github/v/tag/grassrootseconomics/eth-tracker)
 
-A fast and lightweight tracker designed to monitor the Celo blockchain for live and historical transaction events, including reverted transactions. It filters these events and publishes them to NATS for further processing.
+A fast and lightweight tracker designed to monitor EVM blockchains for live and historical transaction events, including reverted transactions. It filters these events and publishes them to NATS for further processing.
 
 It applies deduplication at the NATS level, making it safe to run in a distributed fashion.
+
+Note: To run it against an L2/EVM chain, you will need to manually add a replace directive in the `go.mod` file pointing to the EVM chain's `*geth` compatible source code. This will allow the tracker to process transaction types other than Ethereum's `0x0, 0x1 and 0x2`.
 
 ## Getting Started
 
