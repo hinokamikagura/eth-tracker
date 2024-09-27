@@ -18,7 +18,7 @@ require (
 	github.com/puzpuzpuz/xsync/v3 v3.4.0
 	github.com/redis/rueidis v1.0.46
 	github.com/stretchr/testify v1.9.0
-	github.com/uptrace/bunrouter v1.0.21
+	github.com/uptrace/bunrouter v1.0.22
 	go.etcd.io/bbolt v1.3.11
 )
 
