@@ -21,4 +21,4 @@ run-bootstrap:
 	${BUILD_CONF} ${DEBUG} go run cmd/bootstrap/main.go
 
 run:
-	${BUILD_CONF} ${DEBUG} go run cmd/service/main.go
+	${BUILD_CONF} ${DEBUG} go run cmd/service/*.go
