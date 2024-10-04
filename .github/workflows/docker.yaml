@@ -52,5 +52,4 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           tags: |
-            ghcr.io/grassrootseconomics/eth-tracker:latest
             ghcr.io/grassrootseconomics/eth-tracker:${{ env.RELEASE_TAG }}
