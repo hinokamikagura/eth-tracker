@@ -8,6 +8,10 @@ It applies deduplication at the NATS level, making it safe to run in a distribut
 
 Note: To run it against an L2/EVM chain, you will need to manually add a replace directive in the `go.mod` file pointing to the EVM chain's `*geth` compatible source code. This will allow the tracker to process transaction types other than Ethereum's `0x0, 0x1 and 0x2`.
 
+### CEL2
+
+We maintain a CEL2 compatible tracker (source and container image) on the `cel2` branch.
+
 ## Getting Started
 
 A `Makefile` is also provided to build the required binaries to run eth-tracker.
