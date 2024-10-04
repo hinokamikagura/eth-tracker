@@ -83,7 +83,6 @@ func main() {
 	jetStreamPub, err := pub.NewJetStreamPub(pub.JetStreamOpts{
 		Endpoint:        ko.MustString("jetstream.endpoint"),
 		PersistDuration: time.Duration(ko.MustInt("jetstream.persist_duration_hrs")) * time.Hour,
-		DedupDuration:   time.Duration(ko.MustInt("jetstream.dedup_duration_hrs")) * time.Hour,
 		Logg:            lo,
 	})
 	if err != nil {

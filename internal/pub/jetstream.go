@@ -15,7 +15,6 @@ type (
 	JetStreamOpts struct {
 		Logg            *slog.Logger
 		Endpoint        string
-		DedupDuration   time.Duration
 		PersistDuration time.Duration
 	}
 
@@ -53,7 +52,7 @@ func NewJetStreamPub(o JetStreamOpts) (Pub, error) {
 			MaxAge:     o.PersistDuration,
 			Storage:    nats.FileStorage,
 			Subjects:   streamSubjects,
-			Duplicates: o.DedupDuration,
+			Duplicates: time.Minute,
 		})
 		if err != nil {
 			return nil, err
