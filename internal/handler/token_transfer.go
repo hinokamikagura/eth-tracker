@@ -147,16 +147,10 @@ func (hc *HandlerContainer) checkStables(ctx context.Context, from string, to st
 		return true, nil
 	}
 
-	// TODO: Pipeline this check on Redis with a new method
-	fromExists, err := hc.cache.Exists(ctx, from)
+	exists, err := hc.cache.Exists(ctx, from, to)
 	if err != nil {
 		return false, err
 	}
 
-	toExists, err := hc.cache.Exists(ctx, to)
-	if err != nil {
-		return false, err
-	}
-
-	return fromExists || toExists, nil
+	return exists, nil
 }
