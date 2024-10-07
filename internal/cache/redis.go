@@ -40,8 +40,8 @@ func (c *redisCache) Remove(ctx context.Context, key string) error {
 	return c.client.Do(ctx, cmd).Error()
 }
 
-func (c *redisCache) Exists(ctx context.Context, key string) (bool, error) {
-	cmd := c.client.B().Exists().Key(key).Build()
+func (c *redisCache) Exists(ctx context.Context, keys ...string) (bool, error) {
+	cmd := c.client.B().Exists().Key(keys...).Build()
 	res, err := c.client.Do(ctx, cmd).AsBool()
 	if err != nil {
 		return false, err

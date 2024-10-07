@@ -11,6 +11,8 @@ func bootstrapEventRouter(cacheProvider cache.Cache, pubCB router.Callback) *rou
 	handlerContainer := handler.New(cacheProvider)
 	router := router.New(pubCB)
 
+	router.RegisterContractCreationHandler(handler.HandleContractCreation())
+
 	router.RegisterLogRoute(w3.H("0x26162814817e23ec5035d6a2edc6c422da2da2119e27cfca6be65cc2dc55ca4c"), handler.HandleFaucetGiveLog())
 	router.RegisterLogRoute(w3.H("0xa226db3f664042183ee0281230bba26cbf7b5057e50aee7f25a175ff45ce4d7f"), handler.HandleIndexAddLog(handlerContainer))
 	router.RegisterLogRoute(w3.H("0x24a12366c02e13fe4a9e03d86a8952e85bb74a456c16e4a18b6d8295700b74bb"), handler.HandleIndexRemoveLog(handlerContainer))
@@ -21,6 +23,7 @@ func bootstrapEventRouter(cacheProvider cache.Cache, pubCB router.Callback) *rou
 	router.RegisterLogRoute(w3.H("0x6b7e2e653f93b645d4ed7292d6429f96637084363e477c8aaea1a43ed13c284e"), handler.HandleSealStateChangeLog())
 	router.RegisterLogRoute(w3.H("0xcc16f5dbb4873280815c1ee09dbd06736cffcc184412cf7a71a0fdb75d397ca5"), handler.HandleTokenBurnLog())
 	router.RegisterLogRoute(w3.H("0xab8530f87dc9b59234c4623bf917212bb2536d647574c8e7e5da92c2ede0c9f8"), handler.HandleTokenMintLog())
+	router.RegisterLogRoute(w3.H("0x894e56e1dac400b4475c83d8af0f0aa44de17c62764bd82f6e768a504e242461"), handler.HandleCustodialRegistrationLog())
 	router.RegisterLogRoute(w3.H("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"), handler.HandleTokenTransferLog(handlerContainer))
 
 	router.RegisterInputDataRoute("63e4bff4", handler.HandleFaucetGiveInputData())
@@ -35,6 +38,7 @@ func bootstrapEventRouter(cacheProvider cache.Cache, pubCB router.Callback) *rou
 	router.RegisterInputDataRoute("86fe212d", handler.HandleSealStateChangeInputData())
 	router.RegisterInputDataRoute("42966c68", handler.HandleTokenBurnInputData())
 	router.RegisterInputDataRoute("449a52f8", handler.HandleTokenMintInputData())
+	router.RegisterInputDataRoute("4420e486", handler.HandleCustodialRegistrationInputData())
 	router.RegisterInputDataRoute("a9059cbb", handler.HandleTokenTransferInputData(handlerContainer))
 	router.RegisterInputDataRoute("23b872dd", handler.HandleTokenTransferInputData(handlerContainer))
 
