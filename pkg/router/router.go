@@ -25,8 +25,18 @@ type (
 		TxHash          string
 	}
 
-	LogHandlerFunc       func(context.Context, LogPayload, Callback) error
-	InputDataHandlerFunc func(context.Context, InputDataPayload, Callback) error
+	ContractCreationPayload struct {
+		From            string
+		ContractAddress string
+		Block           uint64
+		Timestamp       uint64
+		TxHash          string
+		Success         bool
+	}
+
+	LogHandlerFunc              func(context.Context, LogPayload, Callback) error
+	InputDataHandlerFunc        func(context.Context, InputDataPayload, Callback) error
+	ContractCreationHandlerFunc func(context.Context, ContractCreationPayload, Callback) error
 
 	LogRouteEntry struct {
 		Signature   common.Hash
@@ -39,17 +49,19 @@ type (
 	}
 
 	Router struct {
-		callbackFn        Callback
-		logHandlers       map[common.Hash]LogRouteEntry
-		inputDataHandlers map[string]InputDataEntry
+		callbackFn              Callback
+		logHandlers             map[common.Hash]LogRouteEntry
+		inputDataHandlers       map[string]InputDataEntry
+		contractCreationHandler ContractCreationHandlerFunc
 	}
 )
 
 func New(callbackFn Callback) *Router {
 	return &Router{
-		callbackFn:        callbackFn,
-		logHandlers:       make(map[common.Hash]LogRouteEntry),
-		inputDataHandlers: make(map[string]InputDataEntry),
+		callbackFn:              callbackFn,
+		logHandlers:             make(map[common.Hash]LogRouteEntry),
+		inputDataHandlers:       make(map[string]InputDataEntry),
+		contractCreationHandler: nil,
 	}
 }
 
@@ -65,6 +77,10 @@ func (r *Router) RegisterInputDataRoute(signature string, handlerFunc InputDataH
 		Signature:   signature,
 		HandlerFunc: handlerFunc,
 	}
+}
+
+func (r *Router) RegisterContractCreationHandler(handlerFunc ContractCreationHandlerFunc) {
+	r.contractCreationHandler = handlerFunc
 }
 
 func (r *Router) ProcessLog(ctx context.Context, payload LogPayload) error {
@@ -87,4 +103,8 @@ func (r *Router) ProcessInputData(ctx context.Context, payload InputDataPayload)
 	}
 
 	return nil
+}
+
+func (r *Router) ProcessContractCreation(ctx context.Context, payload ContractCreationPayload) error {
+	return r.contractCreationHandler(ctx, payload, r.callbackFn)
 }

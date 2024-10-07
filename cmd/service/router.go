@@ -11,6 +11,8 @@ func bootstrapEventRouter(cacheProvider cache.Cache, pubCB router.Callback) *rou
 	handlerContainer := handler.New(cacheProvider)
 	router := router.New(pubCB)
 
+	router.RegisterContractCreationHandler(handler.HandleContractCreation())
+
 	router.RegisterLogRoute(w3.H("0x26162814817e23ec5035d6a2edc6c422da2da2119e27cfca6be65cc2dc55ca4c"), handler.HandleFaucetGiveLog())
 	router.RegisterLogRoute(w3.H("0xa226db3f664042183ee0281230bba26cbf7b5057e50aee7f25a175ff45ce4d7f"), handler.HandleIndexAddLog(handlerContainer))
 	router.RegisterLogRoute(w3.H("0x24a12366c02e13fe4a9e03d86a8952e85bb74a456c16e4a18b6d8295700b74bb"), handler.HandleIndexRemoveLog(handlerContainer))

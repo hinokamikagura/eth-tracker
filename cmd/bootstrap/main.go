@@ -230,12 +230,12 @@ func bootstrapCache() error {
 		}
 
 		for _, address := range ko.MustStrings("bootstrap.watchlist") {
-			if err := cache.Add(ctx, address); err != nil {
+			if err := cache.Add(ctx, ethutils.HexToAddress(address).Hex()); err != nil {
 				return err
 			}
 		}
 		for _, address := range ko.MustStrings("bootstrap.blacklist") {
-			if err := cache.Remove(ctx, address); err != nil {
+			if err := cache.Remove(ctx, ethutils.HexToAddress(address).Hex()); err != nil {
 				return err
 			}
 		}
