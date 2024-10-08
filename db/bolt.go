@@ -14,7 +14,7 @@ type boltDB struct {
 }
 
 const (
-	dbFolderName = "tracker_db"
+	dbFolderName = "db/tracker_db"
 
 	upperBoundKey = "upper"
 	lowerBoundKey = "lower"
