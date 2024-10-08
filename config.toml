@@ -28,11 +28,10 @@ start_block = 0
 [bootstrap]
 # This will bootstrap the cache on which addresses to track
 ge_registries = ["0xE979a64D375F5D363d7cecF3c93B9aFD40Ba9f55"]
-watchlist = [""]
+watchlist = ["0x14dc79964da2c08b23698b3d3cc7ca32193d9955"]
 blacklist = [""]
 
 [jetstream]
 enable = true
 endpoint = "nats://127.0.0.1:4222"
 persist_duration_hrs = 48
-dedup_duration_hrs = 6
