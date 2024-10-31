@@ -4,3 +4,4 @@ tracker_db
 **/*.env
 eth-tracker
 eth-tracker-cache-bootstrap
+*.pprof

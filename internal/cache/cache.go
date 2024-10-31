@@ -3,6 +3,8 @@ package cache
 import (
 	"context"
 	"log/slog"
+
+	"github.com/grassrootseconomics/eth-tracker/internal/chain"
 )
 
 type (
@@ -14,9 +16,13 @@ type (
 	}
 
 	CacheOpts struct {
-		Logg      *slog.Logger
-		RedisDSN  string
-		CacheType string
+		RedisDSN   string
+		CacheType  string
+		Registries []string
+		Watchlist  []string
+		Blacklist  []string
+		Chain      chain.Chain
+		Logg       *slog.Logger
 	}
 )
 
@@ -24,7 +30,7 @@ func New(o CacheOpts) (Cache, error) {
 	var cache Cache
 
 	switch o.CacheType {
-	case "map":
+	case "internal":
 		cache = NewMapCache()
 	case "redis":
 		redisCache, err := NewRedisCache(redisOpts{
@@ -37,6 +43,17 @@ func New(o CacheOpts) (Cache, error) {
 	default:
 		cache = NewMapCache()
 		o.Logg.Warn("invalid cache type, using default type (map)")
+	}
+
+	if err := bootstrapCache(
+		o.Chain,
+		cache,
+		o.Registries,
+		o.Watchlist,
+		o.Blacklist,
+		o.Logg,
+	); err != nil {
+		return cache, err
 	}
 
 	return cache, nil
