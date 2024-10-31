@@ -17,7 +17,7 @@ require (
 	github.com/lmittmann/w3 v0.17.1
 	github.com/nats-io/nats.go v1.36.0
 	github.com/puzpuzpuz/xsync/v3 v3.4.0
-	github.com/redis/rueidis v1.0.47
+	github.com/redis/rueidis v1.0.48
 	github.com/stretchr/testify v1.9.0
 	github.com/uptrace/bunrouter v1.0.22
 	go.etcd.io/bbolt v1.3.11
