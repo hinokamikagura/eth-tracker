@@ -4,7 +4,7 @@ address = ":5001"
 
 [core]
 # Use a specific cache implementation
-cache_type = "redis"
+cache_type = "internal"
 # Use a specific db implementation
 db_type = "bolt"
 # Tune max go routines that can process blocks
@@ -28,7 +28,7 @@ start_block = 0
 [bootstrap]
 # This will bootstrap the cache on which addresses to track
 ge_registries = ["0xE979a64D375F5D363d7cecF3c93B9aFD40Ba9f55"]
-watchlist = ["0x14dc79964da2c08b23698b3d3cc7ca32193d9955"]
+watchlist = [""]
 blacklist = [""]
 
 [jetstream]

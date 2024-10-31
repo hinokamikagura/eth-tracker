@@ -1,80 +1,38 @@
-package main
+package cache
 
 import (
 	"context"
-	"flag"
 	"log/slog"
 	"os"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/grassrootseconomics/eth-tracker/internal/cache"
 	"github.com/grassrootseconomics/eth-tracker/internal/chain"
-	"github.com/grassrootseconomics/eth-tracker/internal/util"
 	"github.com/grassrootseconomics/ethutils"
-	"github.com/knadh/koanf/v2"
 	"github.com/lmittmann/w3"
 	"github.com/lmittmann/w3/module/eth"
 )
 
-var (
-	build = "dev"
-
-	confFlag string
-
-	lo *slog.Logger
-	ko *koanf.Koanf
-)
-
-func init() {
-	flag.StringVar(&confFlag, "config", "config.toml", "Config file location")
-	flag.Parse()
-
-	lo = util.InitLogger()
-	ko = util.InitConfig(lo, confFlag)
-
-	lo.Info("starting GE redis cache bootstrapper", "build", build)
-}
-
-func main() {
-	if err := bootstrapCache(); err != nil {
-		lo.Error("critical error bootstrapping cache", "error", err)
-		os.Exit(1)
-	}
-}
-
-func bootstrapCache() error {
+func bootstrapCache(
+	chain chain.Chain,
+	cache Cache,
+	registries []string,
+	watchlist []string,
+	blacklist []string,
+	lo *slog.Logger,
+) error {
 	var (
 		tokenRegistryGetter = w3.MustNewFunc("tokenRegistry()", "address")
 		quoterGetter        = w3.MustNewFunc("quoter()", "address")
 	)
 
-	chain, err := chain.NewRPCFetcher(chain.EthRPCOpts{
-		RPCEndpoint: ko.MustString("chain.rpc_endpoint"),
-		ChainID:     ko.MustInt64("chain.chainid"),
-	})
-	if err != nil {
-		lo.Error("could not initialize chain client", "error", err)
-		os.Exit(1)
-	}
-
-	cache, err := cache.New(cache.CacheOpts{
-		Logg:      lo,
-		CacheType: ko.MustString("core.cache_type"),
-		RedisDSN:  ko.MustString("redis.dsn"),
-	})
-	if err != nil {
-		lo.Error("could not initialize cache", "error", err)
-		os.Exit(1)
-	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
 	defer cancel()
 
-	for _, registry := range ko.MustStrings("bootstrap.ge_registries") {
+	for _, registry := range registries {
 		registryMap, err := chain.Provider().RegistryMap(ctx, ethutils.HexToAddress(registry))
 		if err != nil {
-			lo.Error("could not fetch registry", "error", err)
+			lo.Error("could not fetch registry", "registry", registry, "error", err)
 			os.Exit(1)
 		}
 
@@ -229,12 +187,12 @@ func bootstrapCache() error {
 			}
 		}
 
-		for _, address := range ko.MustStrings("bootstrap.watchlist") {
+		for _, address := range watchlist {
 			if err := cache.Add(ctx, ethutils.HexToAddress(address).Hex()); err != nil {
 				return err
 			}
 		}
-		for _, address := range ko.MustStrings("bootstrap.blacklist") {
+		for _, address := range blacklist {
 			if err := cache.Remove(ctx, ethutils.HexToAddress(address).Hex()); err != nil {
 				return err
 			}

@@ -2,25 +2,25 @@ package pub
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"time"
 
 	"github.com/grassrootseconomics/eth-tracker/pkg/event"
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 )
 
 type (
 	JetStreamOpts struct {
-		Logg            *slog.Logger
 		Endpoint        string
 		PersistDuration time.Duration
+		Logg            *slog.Logger
 	}
 
 	jetStreamPub struct {
+		js       jetstream.JetStream
 		natsConn *nats.Conn
-		jsCtx    nats.JetStreamContext
 	}
 )
 
@@ -36,33 +36,25 @@ func NewJetStreamPub(o JetStreamOpts) (Pub, error) {
 		return nil, err
 	}
 
-	js, err := natsConn.JetStream()
+	js, err := jetstream.New(natsConn)
 	if err != nil {
 		return nil, err
 	}
-	o.Logg.Info("successfully connected to NATS server")
 
-	stream, err := js.StreamInfo(streamName)
-	if err != nil && !errors.Is(err, nats.ErrStreamNotFound) {
-		return nil, err
-	}
-	if stream == nil {
-		_, err := js.AddStream(&nats.StreamConfig{
-			Name:       streamName,
-			MaxAge:     o.PersistDuration,
-			Storage:    nats.FileStorage,
-			Subjects:   streamSubjects,
-			Duplicates: time.Minute,
-		})
-		if err != nil {
-			return nil, err
-		}
-		o.Logg.Info("successfully created NATS JetStream stream", "stream_name", streamName)
-	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	js.CreateStream(ctx, jetstream.StreamConfig{
+		Name:       streamName,
+		Subjects:   streamSubjects,
+		MaxAge:     o.PersistDuration,
+		Storage:    jetstream.FileStorage,
+		Duplicates: time.Minute,
+	})
 
 	return &jetStreamPub{
 		natsConn: natsConn,
-		jsCtx:    js,
+		js:       js,
 	}, nil
 }
 
@@ -72,16 +64,17 @@ func (p *jetStreamPub) Close() {
 	}
 }
 
-func (p *jetStreamPub) Send(_ context.Context, payload event.Event) error {
+func (p *jetStreamPub) Send(ctx context.Context, payload event.Event) error {
 	data, err := payload.Serialize()
 	if err != nil {
 		return err
 	}
 
-	_, err = p.jsCtx.Publish(
+	_, err = p.js.Publish(
+		ctx,
 		fmt.Sprintf("%s.%s", streamName, payload.TxType),
 		data,
-		nats.MsgId(fmt.Sprintf("%s:%d", payload.TxHash, payload.Index)),
+		jetstream.WithMsgID(fmt.Sprintf("%s:%d", payload.TxHash, payload.Index)),
 	)
 	if err != nil {
 		return err

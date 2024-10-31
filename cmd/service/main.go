@@ -25,6 +25,7 @@ import (
 	"github.com/grassrootseconomics/eth-tracker/internal/syncer"
 	"github.com/grassrootseconomics/eth-tracker/internal/util"
 	"github.com/knadh/koanf/v2"
+	"github.com/knadh/profiler"
 )
 
 const defaultGracefulShutdownPeriod = time.Second * 30
@@ -49,6 +50,14 @@ func init() {
 }
 
 func main() {
+	// PROFILE
+	p := profiler.New(profiler.Conf{
+		MemProfileRate: 1,
+		NoShutdownHook: true,
+	}, profiler.Cpu, profiler.Mem)
+	p.Start()
+	// PROFILE
+
 	var wg sync.WaitGroup
 	ctx, stop := notifyShutdown()
 
@@ -71,9 +80,13 @@ func main() {
 	}
 
 	cache, err := cache.New(cache.CacheOpts{
-		Logg:      lo,
-		CacheType: ko.MustString("core.cache_type"),
-		RedisDSN:  ko.MustString("redis.dsn"),
+		Chain:      chain,
+		Registries: ko.Strings("bootstrap.ge_registries"),
+		Watchlist:  ko.Strings("bootstrap.watchlist"),
+		Blacklist:  ko.Strings("bootstrap.blacklist"),
+		CacheType:  ko.MustString("core.cache_type"),
+		RedisDSN:   ko.MustString("redis.dsn"),
+		Logg:       lo,
 	})
 	if err != nil {
 		lo.Error("could not initialize cache", "error", err)
@@ -184,6 +197,12 @@ func main() {
 		apiServer.Shutdown(shutdownCtx)
 		lo.Info("graceful shutdown routine complete")
 	}()
+
+	// PROFILE
+	runtime.GC()
+	p.Stop()
+	time.Sleep(time.Second * 10)
+	// PROFILE
 
 	go func() {
 		wg.Wait()

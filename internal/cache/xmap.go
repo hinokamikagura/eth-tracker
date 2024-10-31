@@ -7,12 +7,12 @@ import (
 )
 
 type mapCache struct {
-	xmap *xsync.Map
+	xmap *xsync.MapOf[string, bool]
 }
 
 func NewMapCache() Cache {
 	return &mapCache{
-		xmap: xsync.NewMap(),
+		xmap: xsync.NewMapOf[string, bool](),
 	}
 }
 
