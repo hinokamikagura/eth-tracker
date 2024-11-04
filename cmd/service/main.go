@@ -79,15 +79,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	cache, err := cache.New(cache.CacheOpts{
+	cacheOpts := cache.CacheOpts{
 		Chain:      chain,
 		Registries: ko.Strings("bootstrap.ge_registries"),
 		Watchlist:  ko.Strings("bootstrap.watchlist"),
 		Blacklist:  ko.Strings("bootstrap.blacklist"),
 		CacheType:  ko.MustString("core.cache_type"),
-		RedisDSN:   ko.MustString("redis.dsn"),
 		Logg:       lo,
-	})
+	}
+	if ko.MustString("core.cache_type") == "redis" {
+		cacheOpts.RedisDSN = ko.MustString("redis.dsn")
+	}
+	cache, err := cache.New(cacheOpts)
 	if err != nil {
 		lo.Error("could not initialize cache", "error", err)
 		os.Exit(1)
