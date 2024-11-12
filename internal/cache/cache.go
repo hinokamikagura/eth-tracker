@@ -27,6 +27,7 @@ type (
 )
 
 func New(o CacheOpts) (Cache, error) {
+	o.Logg.Info("initializing cache", "registries", o.Registries, "watchlist", o.Watchlist, "blacklist", o.Blacklist)
 	var cache Cache
 
 	switch o.CacheType {
