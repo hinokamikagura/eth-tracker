@@ -14,7 +14,6 @@ clean-db:
 	rm ${DB_FILE}
 
 build:
-	${BUILD_CONF} go build -ldflags="-X main.build=${BUILD_COMMIT} -s -w" -o ${BOOTSTRAP_BIN} cmd/bootstrap/main.go
 	${BUILD_CONF} go build -ldflags="-X main.build=${BUILD_COMMIT} -s -w" -o ${BIN} cmd/service/*.go
 
 run-bootstrap:
