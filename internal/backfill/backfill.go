@@ -29,7 +29,7 @@ type (
 
 const (
 	idleCheckInterval = 60 * time.Second
-	busyCheckInterval = 1 * time.Second
+	busyCheckInterval = 250 * time.Millisecond
 )
 
 func New(o BackfillOpts) *Backfill {
