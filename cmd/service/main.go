@@ -25,7 +25,6 @@ import (
 	"github.com/grassrootseconomics/eth-tracker/internal/syncer"
 	"github.com/grassrootseconomics/eth-tracker/internal/util"
 	"github.com/knadh/koanf/v2"
-	"github.com/knadh/profiler"
 )
 
 const defaultGracefulShutdownPeriod = time.Second * 30
@@ -50,14 +49,6 @@ func init() {
 }
 
 func main() {
-	// PROFILE
-	p := profiler.New(profiler.Conf{
-		MemProfileRate: 1,
-		NoShutdownHook: true,
-	}, profiler.Cpu, profiler.Mem)
-	p.Start()
-	// PROFILE
-
 	var wg sync.WaitGroup
 	ctx, stop := notifyShutdown()
 
@@ -200,12 +191,6 @@ func main() {
 		apiServer.Shutdown(shutdownCtx)
 		lo.Info("graceful shutdown routine complete")
 	}()
-
-	// PROFILE
-	runtime.GC()
-	p.Stop()
-	time.Sleep(time.Second * 10)
-	// PROFILE
 
 	go func() {
 		wg.Wait()
