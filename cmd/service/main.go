@@ -44,11 +44,11 @@ func init() {
 
 	lo = util.InitLogger()
 	ko = util.InitConfig(lo, confFlag)
-
-	lo.Info("starting celo tracker", "build", build)
 }
 
 func main() {
+	lo.Info("starting celo tracker", "build", build)
+
 	var wg sync.WaitGroup
 	ctx, stop := notifyShutdown()
 
@@ -60,6 +60,7 @@ func main() {
 		lo.Error("could not initialize chain client", "error", err)
 		os.Exit(1)
 	}
+	lo.Debug("loaded rpc fetcher")
 
 	db, err := db.New(db.DBOpts{
 		Logg:   lo,
@@ -69,10 +70,11 @@ func main() {
 		lo.Error("could not initialize blocks db", "error", err)
 		os.Exit(1)
 	}
+	lo.Debug("loaded blocks db")
 
 	cacheOpts := cache.CacheOpts{
 		Chain:      chain,
-		Registries: ko.Strings("bootstrap.ge_registries"),
+		Registries: []string{ko.MustString("bootstrap.ge_registry")},
 		Watchlist:  ko.Strings("bootstrap.watchlist"),
 		Blacklist:  ko.Strings("bootstrap.blacklist"),
 		CacheType:  ko.MustString("core.cache_type"),
@@ -86,6 +88,7 @@ func main() {
 		lo.Error("could not initialize cache", "error", err)
 		os.Exit(1)
 	}
+	lo.Debug("loaded and boostrapped cache")
 
 	jetStreamPub, err := pub.NewJetStreamPub(pub.JetStreamOpts{
 		Endpoint:        ko.MustString("jetstream.endpoint"),
@@ -96,8 +99,10 @@ func main() {
 		lo.Error("could not initialize jetstream pub", "error", err)
 		os.Exit(1)
 	}
+	lo.Debug("loaded jetstream publisher")
 
 	router := bootstrapEventRouter(cache, jetStreamPub.Send)
+	lo.Debug("bootstrapped event router")
 
 	blockProcessor := processor.NewProcessor(processor.ProcessorOpts{
 		Cache:  cache,
@@ -106,6 +111,7 @@ func main() {
 		Router: router,
 		Logg:   lo,
 	})
+	lo.Debug("bootstrapped processor")
 
 	poolOpts := pool.PoolOpts{
 		Logg:        lo,
@@ -117,12 +123,14 @@ func main() {
 		poolOpts.WorkerCount = runtime.NumCPU() * 3
 	}
 	workerPool := pool.New(poolOpts)
+	lo.Debug("bootstrapped worker pool")
 
 	stats := stats.New(stats.StatsOpts{
 		Cache: cache,
 		Logg:  lo,
 		Pool:  workerPool,
 	})
+	lo.Debug("bootstrapped stats provider")
 
 	chainSyncer, err := syncer.New(syncer.SyncerOpts{
 		DB:                db,
@@ -137,6 +145,7 @@ func main() {
 		lo.Error("could not initialize chain syncer", "error", err)
 		os.Exit(1)
 	}
+	lo.Debug("bootstrapped realtime syncer")
 
 	backfill := backfill.New(backfill.BackfillOpts{
 		BatchSize: ko.MustInt("core.batch_size"),
@@ -144,16 +153,20 @@ func main() {
 		Logg:      lo,
 		Pool:      workerPool,
 	})
+	lo.Debug("bootstrapped backfiller")
 
 	apiServer := &http.Server{
 		Addr:    ko.MustString("api.address"),
 		Handler: api.New(),
 	}
+	lo.Debug("bootstrapped API server")
+	lo.Debug("starting routines")
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		chainSyncer.Start()
+		lo.Debug("started chain syncer")
 	}()
 
 	wg.Add(1)
@@ -162,7 +175,9 @@ func main() {
 		if err := backfill.Run(false); err != nil {
 			lo.Error("backfiller initial run error", "error", err)
 		}
+		lo.Debug("completed initial backfill run")
 		backfill.Start()
+		lo.Debug("started periodic backfiller")
 	}()
 
 	wg.Add(1)
