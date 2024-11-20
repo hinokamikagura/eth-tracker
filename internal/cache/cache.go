@@ -11,7 +11,8 @@ type (
 	Cache interface {
 		Add(context.Context, string) error
 		Remove(context.Context, string) error
-		Exists(context.Context, ...string) (bool, error)
+		Exists(context.Context, string) (bool, error)
+		ExistsNetwork(context.Context, string, ...string) (bool, error)
 		Size(context.Context) (int64, error)
 	}
 

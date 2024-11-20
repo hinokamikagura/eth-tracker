@@ -10,27 +10,12 @@ import (
 	"github.com/lmittmann/w3"
 )
 
-const (
-	transferEventName = "TOKEN_TRANSFER"
-
-	CUSDContractMainnet = "0x765DE816845861e75A25fCA122bb6898B8B1282a"
-	CKESContractMainnet = "0x456a3D042C0DbD3db53D5489e98dFb038553B0d0"
-	CEURContractmainnet = "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73"
-	USDCContractMainnet = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C"
-	USDTContractMainnet = "0x617f3112bf5397D0467D315cC709EF968D9ba546"
-)
+const transferEventName = "TOKEN_TRANSFER"
 
 var (
 	tokenTransferEvent   = w3.MustNewEvent("Transfer(address indexed _from, address indexed _to, uint256 _value)")
 	tokenTransferSig     = w3.MustNewFunc("transfer(address, uint256)", "bool")
 	tokenTransferFromSig = w3.MustNewFunc("transferFrom(address, address, uint256)", "bool")
-
-	stables = map[string]bool{
-		CUSDContractMainnet: true,
-		CKESContractMainnet: true,
-		USDTContractMainnet: true,
-		USDCContractMainnet: true,
-	}
 )
 
 func HandleTokenTransferLog(hc *HandlerContainer) router.LogHandlerFunc {
@@ -45,7 +30,7 @@ func HandleTokenTransferLog(hc *HandlerContainer) router.LogHandlerFunc {
 			return err
 		}
 
-		proceed, err := hc.checkStables(ctx, from.Hex(), to.Hex(), lp.Log.Address.Hex())
+		proceed, err := hc.checkTransferWithinNetwork(ctx, lp.Log.Address.Hex(), from.Hex(), to.Hex())
 		if err != nil {
 			return err
 		}
@@ -94,7 +79,7 @@ func HandleTokenTransferInputData(hc *HandlerContainer) router.InputDataHandlerF
 				return err
 			}
 
-			proceed, err := hc.checkStables(ctx, idp.From, to.Hex(), idp.ContractAddress)
+			proceed, err := hc.checkTransferWithinNetwork(ctx, idp.ContractAddress, idp.From, to.Hex())
 			if err != nil {
 				return err
 			}
@@ -120,7 +105,7 @@ func HandleTokenTransferInputData(hc *HandlerContainer) router.InputDataHandlerF
 				return err
 			}
 
-			proceed, err := hc.checkStables(ctx, from.Hex(), to.Hex(), idp.ContractAddress)
+			proceed, err := hc.checkTransferWithinNetwork(ctx, idp.ContractAddress, from.Hex(), to.Hex())
 			if err != nil {
 				return err
 			}
@@ -141,13 +126,8 @@ func HandleTokenTransferInputData(hc *HandlerContainer) router.InputDataHandlerF
 	}
 }
 
-func (hc *HandlerContainer) checkStables(ctx context.Context, from string, to string, contractAddress string) (bool, error) {
-	_, ok := stables[contractAddress]
-	if !ok {
-		return true, nil
-	}
-
-	exists, err := hc.cache.Exists(ctx, from, to)
+func (hc *HandlerContainer) checkTransferWithinNetwork(ctx context.Context, contractAddress string, from string, to string) (bool, error) {
+	exists, err := hc.cache.ExistsNetwork(ctx, contractAddress, from, to)
 	if err != nil {
 		return false, err
 	}

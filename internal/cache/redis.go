@@ -40,8 +40,26 @@ func (c *redisCache) Remove(ctx context.Context, key string) error {
 	return c.client.Do(ctx, cmd).Error()
 }
 
-func (c *redisCache) Exists(ctx context.Context, keys ...string) (bool, error) {
-	cmd := c.client.B().Exists().Key(keys...).Build()
+func (c *redisCache) Exists(ctx context.Context, key string) (bool, error) {
+	cmd := c.client.B().Exists().Key(key).Build()
+	res, err := c.client.Do(ctx, cmd).AsBool()
+	if err != nil {
+		return false, err
+	}
+
+	return res, nil
+}
+
+func (c *redisCache) ExistsNetwork(ctx context.Context, token string, addresses ...string) (bool, error) {
+	tokenCmd := c.client.B().Exists().Key(token).Build()
+	tokenRes, err := c.client.Do(ctx, tokenCmd).AsBool()
+	if err != nil {
+		return false, err
+	} else if !tokenRes {
+		return false, nil
+	}
+
+	cmd := c.client.B().Exists().Key(addresses...).Build()
 	res, err := c.client.Do(ctx, cmd).AsBool()
 	if err != nil {
 		return false, err
