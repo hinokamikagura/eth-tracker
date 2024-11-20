@@ -1,6 +1,6 @@
 module github.com/grassrootseconomics/eth-tracker
 
-go 1.23.0
+go 1.23.3
 
 replace github.com/ethereum/go-ethereum => github.com/celo-org/op-geth v1.101408.1-0.20241003173630-fd593f27afa2
 

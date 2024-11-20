@@ -1,7 +1,7 @@
 BIN := eth-tracker
 BOOTSTRAP_BIN := eth-tracker-cache-bootstrap
 DB_FILE := tracker_db 
-BUILD_CONF := CGO_ENABLED=1 GOOS=linux GOARCH=amd64
+BUILD_CONF := CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 BUILD_COMMIT := $(shell git rev-parse --short HEAD 2> /dev/null)
 DEBUG := DEV=true
 
