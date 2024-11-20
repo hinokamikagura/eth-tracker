@@ -30,7 +30,7 @@ func HandleTokenTransferLog(hc *HandlerContainer) router.LogHandlerFunc {
 			return err
 		}
 
-		proceed, err := hc.checkTransferWithinNetwork(ctx, lp.Log.Address.Hex(), from.Hex(), to.Hex())
+		proceed, err := hc.checkWithinNetwork(ctx, lp.Log.Address.Hex(), from.Hex(), to.Hex())
 		if err != nil {
 			return err
 		}
@@ -79,7 +79,7 @@ func HandleTokenTransferInputData(hc *HandlerContainer) router.InputDataHandlerF
 				return err
 			}
 
-			proceed, err := hc.checkTransferWithinNetwork(ctx, idp.ContractAddress, idp.From, to.Hex())
+			proceed, err := hc.checkWithinNetwork(ctx, idp.ContractAddress, idp.From, to.Hex())
 			if err != nil {
 				return err
 			}
@@ -105,7 +105,7 @@ func HandleTokenTransferInputData(hc *HandlerContainer) router.InputDataHandlerF
 				return err
 			}
 
-			proceed, err := hc.checkTransferWithinNetwork(ctx, idp.ContractAddress, from.Hex(), to.Hex())
+			proceed, err := hc.checkWithinNetwork(ctx, idp.ContractAddress, from.Hex(), to.Hex())
 			if err != nil {
 				return err
 			}
@@ -124,13 +124,4 @@ func HandleTokenTransferInputData(hc *HandlerContainer) router.InputDataHandlerF
 
 		return nil
 	}
-}
-
-func (hc *HandlerContainer) checkTransferWithinNetwork(ctx context.Context, contractAddress string, from string, to string) (bool, error) {
-	exists, err := hc.cache.ExistsNetwork(ctx, contractAddress, from, to)
-	if err != nil {
-		return false, err
-	}
-
-	return exists, nil
 }
