@@ -17,7 +17,7 @@ var (
 	tokenApproveToSig = w3.MustNewFunc("approve(address, uint256)", "bool")
 )
 
-func HandleTokenApproveLog() router.LogHandlerFunc {
+func HandleTokenApproveLog(hc *HandlerContainer) router.LogHandlerFunc {
 	return func(ctx context.Context, lp router.LogPayload, c router.Callback) error {
 		var (
 			owner   common.Address
@@ -27,6 +27,14 @@ func HandleTokenApproveLog() router.LogHandlerFunc {
 
 		if err := tokenApproveEvent.DecodeArgs(lp.Log, &owner, &spender, &value); err != nil {
 			return err
+		}
+
+		proceed, err := hc.checkWithinNetwork(ctx, lp.Log.Address.Hex(), owner.Hex(), spender.Hex())
+		if err != nil {
+			return err
+		}
+		if !proceed {
+			return nil
 		}
 
 		tokenApproveEvent := event.Event{
@@ -48,7 +56,7 @@ func HandleTokenApproveLog() router.LogHandlerFunc {
 	}
 }
 
-func HandleTokenApproveInputData() router.InputDataHandlerFunc {
+func HandleTokenApproveInputData(hc *HandlerContainer) router.InputDataHandlerFunc {
 	return func(ctx context.Context, idp router.InputDataPayload, c router.Callback) error {
 		var (
 			spender common.Address
@@ -57,6 +65,14 @@ func HandleTokenApproveInputData() router.InputDataHandlerFunc {
 
 		if err := tokenApproveToSig.DecodeArgs(w3.B(idp.InputData), &spender, &value); err != nil {
 			return err
+		}
+
+		proceed, err := hc.checkWithinNetwork(ctx, idp.ContractAddress, idp.From, spender.Hex())
+		if err != nil {
+			return err
+		}
+		if !proceed {
+			return nil
 		}
 
 		tokenApproveEvent := event.Event{
