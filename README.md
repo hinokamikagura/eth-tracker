@@ -6,6 +6,9 @@ A fast and lightweight tracker designed to monitor EVM blockchains for live and
 historical transaction events, including reverted transactions. It filters these
 events and publishes them to NATS for further processing.
 
+On a warmed up archive RPC node (HTTP) with the default config, it can process
+in excess of 10k blocks/min utilizing not more than 50 MB of RAM.
+
 It applies deduplication at the NATS level, making it safe to run in a
 distributed fashion.
 
@@ -36,8 +39,7 @@ The cache will auto-update based on any additions/removals from all indexes.
 - Git
 - Docker
 - NATS server
-- Redis server (Optional)
-- Access to a Celo RPC node
+- Access to an RPC node, archive preffered
 
 See [docker-compose.yaml](dev/docker-compose.yaml) for an example on how to run
 and deploy a single instance.
@@ -55,7 +57,7 @@ docker buildx build --build-arg BUILD=$(git rev-parse --short HEAD) --tag eth-tr
 docker images
 ```
 
-### 2. Run NATS and Redis
+### 2. Run NATS
 
 For an example, see `dev/docker-compose.yaml`.
 
