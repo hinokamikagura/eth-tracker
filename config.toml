@@ -27,7 +27,7 @@ start_block = 0
 
 [bootstrap]
 # This will bootstrap the cache on which addresses to track
-ge_registry = "0x0f8E97ef2d6A42CF62549D4924FCBdcE83A1C6A5"
+ge_registry = ["0x0f8E97ef2d6A42CF62549D4924FCBdcE83A1C6A5"]
 watchlist = [""]
 blacklist = [""]
 
