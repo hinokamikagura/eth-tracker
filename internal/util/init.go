@@ -41,12 +41,21 @@ func InitConfig(lo *slog.Logger, confFilePath string) *koanf.Koanf {
 		os.Exit(1)
 	}
 
-	if err := ko.Load(env.Provider("TRACKER_", ".", func(s string) string {
-		return strings.ReplaceAll(strings.ToLower(
-			strings.TrimPrefix(s, "TRACKER_")), "__", ".")
-	}), nil); err != nil {
+	err := ko.Load(env.ProviderWithValue("TRACKER_", ".", func(s string, v string) (string, interface{}) {
+		key := strings.ReplaceAll(strings.ToLower(strings.TrimPrefix(s, "TRACKER_")), "__", ".")
+		if strings.Contains(v, " ") {
+			return key, strings.Split(v, " ")
+		}
+		return key, v
+	}), nil)
+
+	if err != nil {
 		lo.Error("could not override config from env vars", "error", err)
 		os.Exit(1)
+	}
+
+	if os.Getenv("DEBUG") != "" {
+		ko.Print()
 	}
 
 	return ko

@@ -74,7 +74,7 @@ func main() {
 
 	cacheOpts := cache.CacheOpts{
 		Chain:      chain,
-		Registries: []string{ko.MustString("bootstrap.ge_registry")},
+		Registries: ko.MustStrings("bootstrap.ge_registry"),
 		Watchlist:  ko.Strings("bootstrap.watchlist"),
 		Blacklist:  ko.Strings("bootstrap.blacklist"),
 		CacheType:  ko.MustString("core.cache_type"),
