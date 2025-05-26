@@ -34,14 +34,6 @@ func New(o CacheOpts) (Cache, error) {
 	switch o.CacheType {
 	case "internal":
 		cache = NewMapCache()
-	case "redis":
-		redisCache, err := NewRedisCache(redisOpts{
-			DSN: o.RedisDSN,
-		})
-		if err != nil {
-			return nil, err
-		}
-		cache = redisCache
 	default:
 		cache = NewMapCache()
 		o.Logg.Warn("invalid cache type, using default type (map)")

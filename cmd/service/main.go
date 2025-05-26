@@ -116,7 +116,6 @@ func main() {
 	poolOpts := pool.PoolOpts{
 		Logg:        lo,
 		WorkerCount: ko.Int("core.pool_size"),
-		BatchSize:   ko.MustInt("core.batch_size"),
 		Processor:   blockProcessor,
 	}
 	if ko.Int("core.pool_size") <= 0 {
