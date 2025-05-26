@@ -26,6 +26,7 @@ func bootstrapEventRouter(cacheProvider cache.Cache, pubCB router.Callback) *rou
 	router.RegisterLogRoute(w3.H("0x894e56e1dac400b4475c83d8af0f0aa44de17c62764bd82f6e768a504e242461"), handler.HandleCustodialRegistrationLog())
 	router.RegisterLogRoute(w3.H("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"), handler.HandleTokenTransferLog(handlerContainer))
 	router.RegisterLogRoute(w3.H("0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925"), handler.HandleTokenApproveLog(handlerContainer))
+	router.RegisterLogRoute(w3.H("0x5f7542858008eeb041631f30e6109ae94b83a58e9a58261dd2c42c508850f939"), handler.HandleTokenTransferFromLog(handlerContainer))
 
 	router.RegisterInputDataRoute("63e4bff4", handler.HandleFaucetGiveInputData())
 	router.RegisterInputDataRoute("de82efb4", handler.HandleFaucetGiveInputData())

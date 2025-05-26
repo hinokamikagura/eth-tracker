@@ -11,7 +11,6 @@ func New() *bunrouter.Router {
 	router := bunrouter.New()
 
 	router.GET("/metrics", metricsHandler())
-
 	return router
 }
 
