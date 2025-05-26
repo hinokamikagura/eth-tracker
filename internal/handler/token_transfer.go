@@ -14,9 +14,10 @@ const transferEventName = "TOKEN_TRANSFER"
 
 var (
 	tokenTransferEvent     = w3.MustNewEvent("Transfer(address indexed _from, address indexed _to, uint256 _value)")
-	tokenTransferSig       = w3.MustNewFunc("transfer(address, uint256)", "bool")
-	tokenTransferFromSig   = w3.MustNewFunc("transferFrom(address, address, uint256)", "bool")
 	tokenTransferFromEvent = w3.MustNewEvent("TransferFrom(address indexed _from, address indexed _to, address indexed _spender, uint256 _value)")
+
+	tokenTransferSig     = w3.MustNewFunc("transfer(address, uint256)", "bool")
+	tokenTransferFromSig = w3.MustNewFunc("transferFrom(address, address, uint256)", "bool")
 )
 
 func HandleTokenTransferLog(hc *HandlerContainer) router.LogHandlerFunc {
@@ -140,7 +141,6 @@ func HandleTokenTransferFromLog(hc *HandlerContainer) router.LogHandlerFunc {
 			return err
 		}
 
-		// TODO: Check correct params
 		proceed, err := hc.checkWithinNetwork(ctx, lp.Log.Address.Hex(), from.Hex(), to.Hex())
 		if err != nil {
 			return err
@@ -156,7 +156,7 @@ func HandleTokenTransferFromLog(hc *HandlerContainer) router.LogHandlerFunc {
 			Success:         true,
 			Timestamp:       lp.Timestamp,
 			TxHash:          lp.Log.TxHash.Hex(),
-			TxType:          "TOKEN_TRANSFER_FROM",
+			TxType:          transferEventName,
 			Payload: map[string]any{
 				"from":    from.Hex(),
 				"to":      to.Hex(),
