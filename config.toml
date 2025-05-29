@@ -22,6 +22,7 @@ chainid = 1337
 # This will start a backfill if set to any other value
 # Ideally this should remain 0
 start_block = 0
+batch_size = 100
 
 [bootstrap]
 # This will bootstrap the cache on which addresses to track
