@@ -10,6 +10,8 @@ db_type = "bolt"
 # Tune max go routines that can process blocks
 # Defaults to (nproc * 3)
 pool_size = 0
+batch_size = 100
+
 
 [redis]
 dsn = "127.0.0.1:6379"
@@ -22,7 +24,6 @@ chainid = 1337
 # This will start a backfill if set to any other value
 # Ideally this should remain 0
 start_block = 0
-batch_size = 100
 
 [bootstrap]
 # This will bootstrap the cache on which addresses to track
