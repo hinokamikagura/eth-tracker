@@ -49,7 +49,7 @@ func NewJetStreamPub(o JetStreamOpts) (Pub, error) {
 		Subjects:   streamSubjects,
 		MaxAge:     o.PersistDuration,
 		Storage:    jetstream.FileStorage,
-		Duplicates: time.Minute,
+		Duplicates: time.Minute * 20,
 	})
 
 	return &jetStreamPub{
