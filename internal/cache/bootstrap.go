@@ -22,8 +22,9 @@ func bootstrapCache(
 	lo *slog.Logger,
 ) error {
 	var (
-		tokenRegistryGetter = w3.MustNewFunc("tokenRegistry()", "address")
-		quoterGetter        = w3.MustNewFunc("quoter()", "address")
+		tokenRegistryGetter  = w3.MustNewFunc("tokenRegistry()", "address")
+		quoterGetter         = w3.MustNewFunc("quoter()", "address")
+		systemAcccountGetter = w3.MustNewFunc("systemAccount()", "address")
 	)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
@@ -43,6 +44,23 @@ func bootstrapCache(
 				}
 
 				lo.Debug("cached registry entry", "type", k, "address", v.Hex())
+			}
+		}
+
+		if custodialRegistrationProxy := registryMap[ethutils.CustodialProxy]; custodialRegistrationProxy != ethutils.ZeroAddress {
+			var systemAccount common.Address
+			err := chain.Provider().Client.CallCtx(
+				ctx,
+				eth.CallFunc(custodialRegistrationProxy, systemAcccountGetter).Returns(&systemAccount),
+			)
+			if err != nil {
+				return err
+			}
+			if systemAccount != ethutils.ZeroAddress {
+				if err := cache.Add(ctx, systemAccount.Hex()); err != nil {
+					return err
+				}
+				lo.Debug("cached custodial system account", "address", systemAccount.Hex())
 			}
 		}
 
@@ -103,7 +121,6 @@ func bootstrapCache(
 						if err := cache.Add(ctx, address.Hex()); err != nil {
 							return err
 						}
-
 					}
 				}
 				lo.Debug("cached token index batch", "batch_size", len(tokenIndexBatch))
