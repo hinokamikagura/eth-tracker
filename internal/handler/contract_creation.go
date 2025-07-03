@@ -9,7 +9,7 @@ import (
 
 const contractCreationEventName = "CONTRACT_CREATION"
 
-func HandleContractCreation() router.ContractCreationHandlerFunc {
+func HandleContractCreation(hc *HandlerContainer) router.ContractCreationHandlerFunc {
 	return func(ctx context.Context, ccp router.ContractCreationPayload, c router.Callback) error {
 		contractCreationEvent := event.Event{
 			Block:           ccp.Block,
@@ -21,6 +21,10 @@ func HandleContractCreation() router.ContractCreationHandlerFunc {
 			Payload: map[string]any{
 				"from": ccp.From,
 			},
+		}
+
+		if err := hc.cache.Add(ctx, ccp.ContractAddress); err != nil {
+			return err
 		}
 
 		return c(ctx, contractCreationEvent)
