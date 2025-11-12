@@ -1,3 +1,5 @@
+// Package backfill provides functionality for processing missed blocks.
+// It periodically checks for gaps in processed blocks and queues them for reprocessing.
 package backfill
 
 import (
@@ -9,14 +11,25 @@ import (
 	"github.com/grassrootseconomics/eth-tracker/internal/pool"
 )
 
+const (
+	// idleCheckInterval is the interval between backfill checks when the queue is idle
+	idleCheckInterval = 60 * time.Second
+	// busyCheckInterval is the interval between backfill checks when there are many missing blocks
+	busyCheckInterval = 250 * time.Millisecond
+	// minQueueSizeForIdleCheck is the maximum queue size to consider the system idle
+	minQueueSizeForIdleCheck = 1
+)
+
 type (
+	// BackfillOpts contains configuration options for creating a new Backfill.
 	BackfillOpts struct {
-		BatchSize int
-		DB        db.DB
-		Logg      *slog.Logger
-		Pool      *pool.Pool
+		BatchSize int          // Maximum number of blocks to queue per backfill run
+		DB        db.DB        // Database for block state management
+		Logg      *slog.Logger // Structured logger
+		Pool      *pool.Pool   // Worker pool for block processing
 	}
 
+	// Backfill manages periodic backfilling of missed blocks.
 	Backfill struct {
 		batchSize int
 		db        db.DB
@@ -27,11 +40,7 @@ type (
 	}
 )
 
-const (
-	idleCheckInterval = 60 * time.Second
-	busyCheckInterval = 250 * time.Millisecond
-)
-
+// New creates a new Backfill instance with the provided options.
 func New(o BackfillOpts) *Backfill {
 	return &Backfill{
 		batchSize: o.BatchSize,
@@ -43,81 +52,112 @@ func New(o BackfillOpts) *Backfill {
 	}
 }
 
+// Stop stops the backfill ticker and signals shutdown.
 func (b *Backfill) Stop() {
 	b.ticker.Stop()
-	b.stopCh <- struct{}{}
+	close(b.stopCh)
+	b.logg.Info("backfill stopped")
 }
 
+// Start begins periodic backfill processing.
+// It checks for missing blocks at intervals based on queue load.
 func (b *Backfill) Start() {
+	b.logg.Info("backfill started", "batch_size", b.batchSize)
+
 	for {
 		select {
 		case <-b.stopCh:
 			b.logg.Debug("backfill shutting down")
 			return
 		case <-b.ticker.C:
-			if b.pool.Size() <= 1 {
+			queueSize := b.pool.Size()
+			if queueSize <= minQueueSizeForIdleCheck {
 				if err := b.Run(true); err != nil {
-					b.logg.Error("backfill run error", "err", err)
+					b.logg.Error("backfill run failed", "error", err)
+				} else {
+					b.logg.Debug("backfill run completed", "queue_size", queueSize)
 				}
-				b.logg.Debug("backfill successful run", "queue_size", b.pool.Size())
 			} else {
-				b.logg.Debug("skipping backfill tick", "queue_size", b.pool.Size())
+				b.logg.Debug("skipping backfill tick due to busy queue", "queue_size", queueSize)
 			}
 		}
 	}
-
 }
 
+// Run performs a single backfill operation, finding and queuing missing blocks.
+// If skipLatest is true, the latest block is excluded from the range check.
 func (b *Backfill) Run(skipLatest bool) error {
 	lower, err := b.db.GetLowerBound()
 	if err != nil {
-		return fmt.Errorf("verifier could not get lower bound from db: err %v", err)
-	}
-	upper, err := b.db.GetUpperBound()
-	if err != nil {
-		return fmt.Errorf("verifier could not get upper bound from db: err %v", err)
+		return fmt.Errorf("failed to get lower bound: %w", err)
 	}
 
-	if skipLatest {
+	upper, err := b.db.GetUpperBound()
+	if err != nil {
+		return fmt.Errorf("failed to get upper bound: %w", err)
+	}
+
+	if skipLatest && upper > lower {
 		upper--
+	}
+
+	if upper < lower {
+		return nil
 	}
 
 	missingBlocks, err := b.db.GetMissingValuesBitSet(lower, upper)
 	if err != nil {
-		return fmt.Errorf("verifier could not get missing values bitset: err %v", err)
+		return fmt.Errorf("failed to get missing blocks bitset: %w", err)
 	}
+
 	missingBlocksCount := missingBlocks.Count()
+	if missingBlocksCount == 0 {
+		missingBlocks.ClearAll()
+		return nil
+	}
 
-	if missingBlocksCount > 0 {
-		b.logg.Info("found missing blocks", "skip_latest", skipLatest, "missing_blocks_count", missingBlocksCount)
+	b.logg.Info("found missing blocks",
+		"skip_latest", skipLatest,
+		"missing_count", missingBlocksCount,
+		"range", fmt.Sprintf("%d-%d", lower, upper),
+	)
 
-		buffer := make([]uint, b.batchSize)
-		j := uint(0)
-		pushedCount := 0
-		j, buffer = missingBlocks.NextSetMany(j, buffer)
-		for ; len(buffer) > 0; j, buffer = missingBlocks.NextSetMany(j, buffer) {
-			for k := range buffer {
-				if pushedCount >= b.batchSize {
-					break
-				}
+	// Process missing blocks in batches
+	buffer := make([]uint, b.batchSize)
+	j := uint(0)
+	pushedCount := 0
 
-				b.pool.Push(uint64(buffer[k]))
-				b.logg.Debug("pushed block from backfill", "block", buffer[k])
-				pushedCount++
+	j, buffer = missingBlocks.NextSetMany(j, buffer)
+	for len(buffer) > 0 && pushedCount < b.batchSize {
+		for _, blockIdx := range buffer {
+			if pushedCount >= b.batchSize {
+				break
 			}
+
+			blockNumber := uint64(blockIdx)
+			b.pool.Push(blockNumber)
+			b.logg.Debug("queued missing block", "block", blockNumber)
+			pushedCount++
+		}
+
+		if pushedCount < b.batchSize {
 			j++
+			j, buffer = missingBlocks.NextSetMany(j, buffer)
+		} else {
+			break
 		}
 	}
 
+	// Adjust ticker interval based on remaining missing blocks
 	if missingBlocksCount > uint(b.batchSize) {
 		b.ticker.Reset(busyCheckInterval)
+		b.logg.Debug("switched to busy check interval", "remaining", missingBlocksCount-uint(pushedCount))
 	} else {
 		b.ticker.Reset(idleCheckInterval)
 	}
 
 	missingBlocks.ClearAll()
-	missingBlocks = nil
-	b.logg.Debug("backfill tick run complete")
+	b.logg.Debug("backfill run complete", "queued", pushedCount, "remaining", missingBlocksCount-uint(pushedCount))
 
 	return nil
 }

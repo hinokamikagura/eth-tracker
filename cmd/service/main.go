@@ -1,3 +1,7 @@
+// Package main provides the entry point for the eth-tracker service.
+// eth-tracker is a high-performance EVM blockchain event tracker that monitors
+// transactions and events, filters them based on configured addresses, and
+// publishes filtered events to NATS JetStream for downstream processing.
 package main
 
 import (
@@ -27,27 +31,52 @@ import (
 	"github.com/knadh/koanf/v2"
 )
 
-const defaultGracefulShutdownPeriod = time.Second * 30
+const (
+	// defaultGracefulShutdownPeriod defines the maximum time allowed for graceful shutdown
+	// before forcefully terminating the application.
+	defaultGracefulShutdownPeriod = time.Second * 30
+
+	// defaultWorkerPoolMultiplier is the multiplier used to calculate default worker pool size
+	// based on CPU count when pool_size is not explicitly configured.
+	defaultWorkerPoolMultiplier = 3
+)
 
 var (
+	// build is set during compilation via -ldflags "-X main.build=<version>"
 	build = "dev"
 
+	// confFlag holds the path to the configuration file
 	confFlag string
 
+	// lo is the global structured logger instance
 	lo *slog.Logger
+
+	// ko is the global configuration instance
 	ko *koanf.Koanf
 )
 
 func init() {
-	flag.StringVar(&confFlag, "config", "config.toml", "Config file location")
+	flag.StringVar(&confFlag, "config", "config.toml", "Path to configuration file (TOML format)")
 	flag.Parse()
 
 	lo = util.InitLogger()
 	ko = util.InitConfig(lo, confFlag)
 }
 
+// main initializes and starts all service components including:
+// - Chain RPC client for blockchain data fetching
+// - Database for block tracking and state persistence
+// - Cache for address filtering
+// - NATS JetStream publisher for event distribution
+// - Event router for processing blockchain events
+// - Block processor for transaction and log processing
+// - Worker pool for concurrent block processing
+// - Stats collector for monitoring
+// - Real-time chain syncer for new blocks
+// - Backfill processor for missed blocks
+// - HTTP API server for metrics and health checks
 func main() {
-	lo.Info("starting celo tracker", "build", build)
+	lo.Info("starting eth-tracker service", "build", build, "version", build)
 
 	var wg sync.WaitGroup
 	ctx, stop := notifyShutdown()
@@ -113,13 +142,15 @@ func main() {
 	})
 	lo.Debug("bootstrapped processor")
 
+	poolSize := ko.Int("core.pool_size")
+	if poolSize <= 0 {
+		poolSize = runtime.NumCPU() * defaultWorkerPoolMultiplier
+		lo.Info("using default worker pool size", "cpu_count", runtime.NumCPU(), "pool_size", poolSize)
+	}
 	poolOpts := pool.PoolOpts{
 		Logg:        lo,
-		WorkerCount: ko.Int("core.pool_size"),
+		WorkerCount: poolSize,
 		Processor:   blockProcessor,
-	}
-	if ko.Int("core.pool_size") <= 0 {
-		poolOpts.WorkerCount = runtime.NumCPU() * 3
 	}
 	workerPool := pool.New(poolOpts)
 	lo.Debug("bootstrapped worker pool")
@@ -161,67 +192,90 @@ func main() {
 	lo.Debug("bootstrapped API server")
 	lo.Debug("starting routines")
 
+	// Start real-time chain syncer goroutine
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		chainSyncer.Start()
-		lo.Debug("started chain syncer")
+		lo.Info("chain syncer started")
 	}()
 
+	// Start backfill processor goroutine
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		if err := backfill.Run(false); err != nil {
 			lo.Error("backfiller initial run error", "error", err)
+		} else {
+			lo.Info("completed initial backfill run")
 		}
-		lo.Debug("completed initial backfill run")
 		backfill.Start()
-		lo.Debug("started periodic backfiller")
+		lo.Info("periodic backfiller started")
 	}()
 
+	// Start HTTP API server goroutine
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		lo.Info("metrics and stats server starting", "address", ko.MustString("api.address"))
-		if err := apiServer.ListenAndServe(); err != http.ErrServerClosed {
-			lo.Error("failed to start API server", "error", err)
+		apiAddr := ko.MustString("api.address")
+		lo.Info("starting API server", "address", apiAddr)
+		if err := apiServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			lo.Error("API server failed", "error", err)
 			os.Exit(1)
 		}
 	}()
 
+	// Wait for shutdown signal
 	<-ctx.Done()
-	lo.Info("shutdown signal received")
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), defaultGracefulShutdownPeriod)
+	lo.Info("shutdown signal received, initiating graceful shutdown")
 
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), defaultGracefulShutdownPeriod)
+	defer cancel()
+
+	// Perform graceful shutdown in a separate goroutine
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		lo.Info("stopping service components")
 		chainSyncer.Stop()
 		backfill.Stop()
 		workerPool.Stop()
 		jetStreamPub.Close()
-		db.Cleanup()
-		db.Close()
-		apiServer.Shutdown(shutdownCtx)
-		lo.Info("graceful shutdown routine complete")
+		if err := db.Cleanup(); err != nil {
+			lo.Error("database cleanup error", "error", err)
+		}
+		if err := db.Close(); err != nil {
+			lo.Error("database close error", "error", err)
+		}
+		if err := apiServer.Shutdown(shutdownCtx); err != nil {
+			lo.Error("API server shutdown error", "error", err)
+		}
+		lo.Info("graceful shutdown complete")
 	}()
 
+	// Wait for shutdown completion or timeout
+	shutdownDone := make(chan struct{})
 	go func() {
 		wg.Wait()
-		stop()
-		cancel()
-		os.Exit(0)
+		close(shutdownDone)
 	}()
 
-	<-shutdownCtx.Done()
-	if errors.Is(shutdownCtx.Err(), context.DeadlineExceeded) {
+	select {
+	case <-shutdownDone:
 		stop()
-		cancel()
-		lo.Error("graceful shutdown period exceeded, forcefully shutting down")
+		lo.Info("service stopped successfully")
+		os.Exit(0)
+	case <-shutdownCtx.Done():
+		if errors.Is(shutdownCtx.Err(), context.DeadlineExceeded) {
+			stop()
+			lo.Error("graceful shutdown timeout exceeded, forcing exit")
+			os.Exit(1)
+		}
 	}
-	os.Exit(1)
 }
 
+// notifyShutdown creates a context that is cancelled when the application receives
+// a shutdown signal (SIGINT, SIGTERM, or interrupt).
 func notifyShutdown() (context.Context, context.CancelFunc) {
 	return signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 }
