@@ -7,7 +7,7 @@ require (
 	github.com/alitto/pond/v2 v2.3.4
 	github.com/bits-and-blooms/bitset v1.22.0
 	github.com/ethereum/go-ethereum v1.15.11
-	github.com/grassrootseconomics/ethutils v1.4.0
+	github.com/grassrootseconomics/ethutils v1.5.1
 	github.com/kamikazechaser/common v0.2.0
 	github.com/knadh/koanf/parsers/toml v0.1.0
 	github.com/knadh/koanf/providers/env v1.0.0

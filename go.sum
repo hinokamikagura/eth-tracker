@@ -78,8 +78,8 @@ github.com/google/gofuzz v1.2.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/
 github.com/google/subcommands v1.2.0/go.mod h1:ZjhPrFU+Olkh9WazFPsl27BQ4UPiG37m3yTrtFlrHVk=
 github.com/gorilla/websocket v1.5.3 h1:saDtZ6Pbx/0u+bgYQ3q96pZgCzfhKXGPqt7kZ72aNNg=
 github.com/gorilla/websocket v1.5.3/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
-github.com/grassrootseconomics/ethutils v1.4.0 h1:1QRLhOhY7GFoY27IlW9WoVoQuKDIGRjlFiPDiUWDN8Y=
-github.com/grassrootseconomics/ethutils v1.4.0/go.mod h1:7RCNwDj1wfgWt8CV4p7cQuZWPPI5fjwl/piq7NthaWg=
+github.com/grassrootseconomics/ethutils v1.5.1 h1:WYVy4WnK2s0wtUk8JQur/7aNOGxxWDEDBajAu5zFU0g=
+github.com/grassrootseconomics/ethutils v1.5.1/go.mod h1:7RCNwDj1wfgWt8CV4p7cQuZWPPI5fjwl/piq7NthaWg=
 github.com/hashicorp/go-bexpr v0.1.10 h1:9kuI5PFotCboP3dkDYFr/wi0gg0QVbSNz5oFRpxn4uE=
 github.com/hashicorp/go-bexpr v0.1.10/go.mod h1:oxlubA2vC/gFVfX1A6JGp7ls7uCDlfJn732ehYYg+g0=
 github.com/holiman/billy v0.0.0-20240216141850-2abb0c79d3c4 h1:X4egAf/gcS1zATw6wn4Ej8vjuVGxeHdan+bRb2ebyv4=
