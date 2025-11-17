@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/VictoriaMetrics/metrics v1.40.2
-	github.com/alitto/pond/v2 v2.3.4
+	github.com/alitto/pond/v2 v2.5.0
 	github.com/bits-and-blooms/bitset v1.24.3
 	github.com/ethereum/go-ethereum v1.15.11
 	github.com/grassrootseconomics/ethutils v1.4.0
